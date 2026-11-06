@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#171127">
+<meta name="description" content="Naija POV — funny Nigerian situations. Pick your side and share your answer!">
+<title>Naija POV 🇳🇬</title>
+<style>
+:root {
+  --bg: #171127;
+  --card: #251b3a;
+  --yellow: #ffd447;
+  --text: #fffaf0;
+  --muted: #c4b9d8;
+  --green: #6ee7a0;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #392052, var(--bg) 65%);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+header {
+  padding: 22px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ffffff18;
+}
+.logo { font-size: 1.2rem; font-weight: 900; }
+.logo span { color: var(--yellow); }
+.pill {
+  border: 1px solid #ffffff30;
+  padding: 6px 10px;
+  border-radius: 30px;
+  color: var(--muted);
+  font-size: .8rem;
+}
+main {
+  width: min(650px, 100%);
+  margin: auto;
+  padding: 30px 18px 45px;
+}
+.hero { text-align: center; margin-bottom: 28px; }
+.hero .flag { font-size: 2rem; }
+h1 { font-size: clamp(2rem, 8vw, 3.2rem); margin: 8px 0; line-height: 1.1; }
+h1 span { color: var(--yellow); }
+.hero p { color: var(--muted); line-height: 1.6; }
+.progress-wrap {
+  height: 6px; background: #ffffff20; border-radius: 20px;
+  overflow: hidden; margin: 20px 0;
+}
+#progress { height: 100%; width: 0; background: var(--yellow); transition: width .25s; }
+.card {
+  background: var(--card);
+  border: 1px solid #ffffff20;
+  border-radius: 22px;
+  padding: 23px;
+  box-shadow: 0 18px 50px #0002;
+}
+.topline { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: .85rem; }
+.tag { color: var(--yellow); font-weight: 700; }
+h2 { font-size: 1.55rem; line-height: 1.35; margin: 24px 0; }
+.answers { display: grid; gap: 12px; }
+.answer {
+  background: #ffffff08; color: var(--text); text-align: left;
+  border: 1px solid #ffffff30; border-radius: 13px; padding: 16px;
+  font: inherit; cursor: pointer; transition: .15s;
+}
+.answer:hover { border-color: var(--yellow); }
+.answer.selected { border-color: var(--yellow); background: #ffd44718; }
+.answer:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.actions { display: grid; gap: 10px; margin-top: 20px; }
+.btn {
+  border: 0; border-radius: 12px; padding: 15px 18px;
+  font: inherit; font-weight: 800; cursor: pointer;
+}
+.primary { background: var(--yellow); color: #21152e; }
+.secondary { background: #ffffff12; color: var(--text); border: 1px solid #ffffff25; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+#feedback { color: var(--green); min-height: 24px; margin-top: 12px; }
+footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 20px; }
+.hidden { display: none; }
+.result { text-align: center; }
+.result .emoji { font-size: 3rem; }
+.result h2 { font-size: 2rem; }
+.small { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🇳🇬 NAIJA <span>POV</span></div>
+  <div class="pill">Your Naija, your opinion</div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="flag">😂 🇳🇬 🔥</div>
+    <h1>What would <span>YOU</span> do?</h1>
+    <p>Naija situations. Unfiltered opinions. No boring answers.<br>Pick your side and let the gbas gbos begin!</p>
+  </section>
+
+  <section id="game" class="card">
+    <div class="topline">
+      <span id="counter">Scenario 1 of 10</span>
+      <span class="tag" id="category">FAMILY WAHALA</span>
+    </div>
+    <div class="progress-wrap"><div id="progress"></div></div>
+    <h2 id="question"></h2>
+    <div class="answers" id="answers"></div>
+    <div id="feedback" aria-live="polite"></div>
+    <div class="actions">
+      <button class="btn primary" id="lock" disabled>Lock in my answer 🔒</button>
+      <button class="btn secondary hidden" id="next">Next scenario →</button>
+    </div>
+  </section>
+
+  <section id="results" class="card result hidden">
+    <div class="emoji">🎉</div>
+    <h2>You have spoken!</h2>
+    <p id="summary"></p>
+    <p class="small">Your answers were recorded only in this game session. This prototype does not yet collect votes from other players or show national statistics.</p>
+    <div class="actions">
+      <button class="btn primary" id="share">Share my Naija POV 📲</button>
+      <button class="btn secondary" id="restart">Play again 🔁</button>
+    </div>
+    <p id="shareStatus" class="small" aria-live="polite"></p>
+  </section>
+</main>
+
+<footer>Made for the love of Naija 🇳🇬 · Be funny, be kind.</footer>
+
+<script>
+const scenarios = [
+  {
+    category: "FAMILY WAHALA",
+    question: "Your mum calls you from another room. You answer, “Ma?” She calls again. What's your move?",
+    options: ["Shout “I'm coming!” and stay where I am 😂", "Stand up immediately. No risks.", "Pretend I didn't hear anything", "Ask what she wants first"]
+  },
+  {
+    category: "FRIENDSHIP",
+    question: "Your friend says “I'm 5 minutes away” but hasn't even left home. You...",
+    options: ["Know the meaning of 5 Nigerian minutes 😭", "Start getting angry immediately", "Tell them to cancel the plan", "Also start getting ready slowly"]
+  },
+  {
+    category: "FOOD MATTERS",
+    question: "Someone takes the last piece of meat from the pot without asking. What happens next?",
+    options: ["Peace is officially over 😭", "I ask who took it calmly", "I hide my own meat next time", "Meat is meat. I move."]
+  },
+  {
+    category: "SCHOOL LIFE",
+    question: "The teacher says, “Submit your assignment.” You suddenly remember something...",
+    options: ["I did it but forgot it at home 😭", "I start explaining my whole life story", "I borrow a friend's own to check mine", "I accept my fate quietly"]
+  },
+  {
+    category: "DATA ISLAND",
+    question: "You buy data and it finishes suspiciously fast. Your first suspect is...",
+    options: ["Instagram and TikTok 😭", "That background app", "My network provider abeg", "Someone connected to my hotspot"]
+  },
+  {
+    category: "UNEXPECTED VISITORS",
+    question: "Guests arrive when the house is not ready. The family reaction?",
+    options: ["Everybody starts cleaning at once", "Someone says “we were just about to clean” 😂", "Hide everything in one room", "Act like the house always looks like this"]
+  },
+  {
+    category: "GROUP CHAT",
+    question: "You send a message in the group chat and everybody reads it. Nobody replies. You...",
+    options: ["Delete the message 😭", "Send “okay o”", "Pretend I never cared", "Start another conversation"]
+  },
+  {
+    category: "MONEY MATTERS",
+    question: "Your friend borrows money and suddenly becomes hard to reach. You...",
+    options: ["Send a polite reminder", "Call them with full government energy", "Wait and hope they remember", "Tell a mutual friend to remind them"]
+  },
+  {
+    category: "WEEKEND PLANS",
+    question: "Your friends plan an outing. You agree, then the day arrives. Honestly, you...",
+    options: ["Still go. We move!", "Start looking for a believable excuse", "Ask if we can change it to staying in", "Wait for someone else to cancel first"]
+  },
+  {
+    category: "EVERYDAY NAIJA",
+    question: "The power goes off just when you're enjoying your phone. Your first reaction?",
+    options: ["Look up at the ceiling in silence 😭", "Check whether the neighbours still have light", "Find a power bank immediately", "Say “NEPA!” automatically"]
+  }
+];
+
+let current = 0;
+let chosen = null;
+let lockedAnswers = [];
+
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const counterEl = document.getElementById("counter");
+const categoryEl = document.getElementById("category");
+const progressEl = document.getElementById("progress");
+const lockBtn = document.getElementById("lock");
+const nextBtn = document.getElementById("next");
+const feedbackEl = document.getElementById("feedback");
+const gameEl = document.getElementById("game");
+const resultsEl = document.getElementById("results");
+
+function renderScenario() {
+  const item = scenarios[current];
+  chosen = null;
+  counterEl.textContent = `Scenario ${current + 1} of ${scenarios.length}`;
+  categoryEl.textContent = item.category;
+  questionEl.textContent = item.question;
+  progressEl.style.width = `${(current / scenarios.length) * 100}%`;
+  answersEl.innerHTML = "";
+  feedbackEl.textContent = "";
+  lockBtn.disabled = true;
+  lockBtn.classList.remove("hidden");
+  nextBtn.classList.add("hidden");
+
+  item.options.forEach((option, index) => {
+    const button = document.createElement("button");
+    button.className = "answer";
+    button.textContent = option;
+    button.type = "button";
+    button.addEventListener("click", () => {
+      if (lockedAnswers[current] !== undefined) return;
+      chosen = index;
+      answersEl.querySelectorAll(".answer").forEach(el => el.classList.remove("selected"));
+      button.classList.add("selected");
+      lockBtn.disabled = false;
+    });
+    answersEl.appendChild(button);
+  });
+}
+
+lockBtn.addEventListener("click", () => {
+  if (chosen === null) return;
+  lockedAnswers[current] = chosen;
+  answersEl.querySelectorAll(".answer").forEach(button => {
+    button.disabled = true;
+  });
+  lockBtn.classList.add("hidden");
+  feedbackEl.textContent = "Answer locked in! No going back 😂";
+  nextBtn.textContent = current === scenarios.length - 1 ? "See my results 🎉" : "Next scenario →";
+  nextBtn.classList.remove("hidden");
+  progressEl.style.width = `${((current + 1) / scenarios.length) * 100}%`;
+});
+
+nextBtn.addEventListener("click", () => {
+  if (current < scenarios.length - 1) {
+    current++;
+    renderScenario();
+  } else {
+    showResults();
+  }
+});
+
+function showResults() {
+  gameEl.classList.add("hidden");
+  resultsEl.classList.remove("hidden");
+  document.getElementById("summary").textContent =
+    `You answered all ${lockedAnswers.length} scenarios! You've made your choices. Now challenge a friend to play and compare answers.`;
+}
+
+document.getElementById("share").addEventListener("click", async () => {
+  const text = "I just played Naija POV 🇳🇬 😂 What would YOU do? Play and compare your answers!";
+  const status = document.getElementById("shareStatus");
+  const shareData = { title: "Naija POV", text, url: window.location.href };
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      status.textContent = "Thanks for sharing! 🇳🇬";
+    } else if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text + " " + window.location.href);
+      status.textContent = "Share message copied! Paste it into WhatsApp or your status.";
+    } else {
+      window.prompt("Copy this message and share it with friends:", text + " " + window.location.href);
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      status.textContent = "Sharing wasn't available. You can copy the website link from your browser.";
+    }
+  }
+});
+
+document.getElementById("restart").addEventListener("click", () => {
+  current = 0;
+  chosen = null;
+  lockedAnswers = [];
+  resultsEl.classList.add("hidden");
+  gameEl.classList.remove("hidden");
+  renderScenario();
+});
+
+renderScenario();
+</script>
+</body>
+</html>
